@@ -1,8 +1,8 @@
 .PHONY: clean all compile
 
 # 기본 컴파일러를 ARM64 크로스 컴파일러로 설정
-#CC = gcc
-CC = aarch64-linux-gnu-gcc
+CC = gcc
+#CC = aarch64-linux-gnu-gcc
 
 CFLAGS = -Ilib
 SRC := $(wildcard src/*.c)
