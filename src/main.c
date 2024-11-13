@@ -1,3 +1,4 @@
+#include "/root/server/sharedmemory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,13 +11,6 @@
 
 #define SERVER_PORT 12345          // 서버의 포트 번호
 #define MAX_CLIENTS 10             // 최대 클라이언트 수
-
-typedef struct {
-    int adc_value;         // ADC 값
-    int pwm_duty_cycle;    // PWM Duty Cycle 값
-    int distance;          // 초음파 거리 측정 값
-    int led_state;         // LED GPIO 상태
-} DataPacket;
 
 typedef struct {
     DataPacket client_data[MAX_CLIENTS];   // 각 클라이언트의 데이터 저장 공간
@@ -102,7 +96,7 @@ int main() {
     }
 
     server_addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, "192.168.137.7", &server_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, "192.168.137.6", &server_addr.sin_addr) <= 0) {
         perror("Invalid address/Address not supported");
         close(server_sock);
         return -1;
@@ -121,7 +115,7 @@ int main() {
         return -1;
     }
 
-    printf("Server listening on IP 192.168.137.7, port %d\n", SERVER_PORT);
+    printf("Server listening on IP 192.168.137.6, port %d\n", SERVER_PORT);
 
     while (1) {
         client_sock = malloc(sizeof(int));
