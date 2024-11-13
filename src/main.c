@@ -1,4 +1,3 @@
-#include "/root/server/sharedmemory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +7,8 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#include "sharedmemory.h"
 
 #define SERVER_PORT 12345          // 서버의 포트 번호
 #define MAX_CLIENTS 10             // 최대 클라이언트 수
@@ -78,12 +79,16 @@ void* handle_client(void* arg) {
     return NULL;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     int server_sock, *client_sock;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     pthread_t tid;
 
+    if(argc > 2) {
+	    perror("Wrong Input\n");
+	    return -1;
+    }
     int shm_fd = shm_open("/shared_memory", O_CREAT | O_RDWR, 0666);
     ftruncate(shm_fd, sizeof(SharedMemory));
     shared_mem = mmap(0, sizeof(SharedMemory), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
