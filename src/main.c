@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdint.h>
 
+#include "fan.h"
 #include "handle_client.h"
 #include "sharedmemory.h"
 

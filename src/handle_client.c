@@ -105,12 +105,11 @@ void* handle_client2_recv(void* arg) {
 
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
 
-        //print_sharedmemory();
+        print_sharedmemory();
 
         //////////////////////////////////
-        /*
-        if(1){
-        //if(buffer.sleep_score > 255 && buffer.sleep_score < 512){
+    
+        if(buffer.sleep_score > 255 && buffer.sleep_score < 512){
             fan_set_speed(2); 
         }
         else if(buffer.sleep_score > 512){
@@ -119,7 +118,6 @@ void* handle_client2_recv(void* arg) {
         else{
             fan_set_speed(0);
         }
-        */
 
         //////////////////////////////////
         sleep(1);
