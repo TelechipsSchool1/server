@@ -7,10 +7,11 @@
 
 #include "handle_client.h"
 #include "sharedmemory.h"
+#include "fan.h"
 
 void print_sharedmemory(){
     printf("Zone 1 recv\n");
-    printf(" distance : %f\n temperature : %f\n humidity : %f\n pressure : %f\n door_status : %d\n window_status : %d\n",\
+    printf(" distance : %f\n temperature : %f\n humidity : %f\n pressure : %d\n door_status : %d\n window_status : %d\n",\
                       shared_memory->zone1_recv.ultrasonic_distance, shared_memory->zone1_recv.temperature,\
                       shared_memory->zone1_recv.humidity, shared_memory->zone1_recv.pressure,\
                        shared_memory->zone1_recv.door_status, shared_memory->zone1_recv.window_status);
@@ -19,7 +20,7 @@ void print_sharedmemory(){
                      shared_memory->zone2_recv.co2, shared_memory->zone2_recv.heart, shared_memory->zone2_recv.sleep_score);
 
     printf("Zone 3 recv\n");
-    printf(" distance : %f\n temperature : %f\n humidity : %f\n pressure : %f\n door_status : %d\n window_status : %d\n",\
+    printf(" distance : %f\n temperature : %f\n humidity : %f\n pressure : %d\n door_status : %d\n window_status : %d\n",\
                       shared_memory->zone3_recv.ultrasonic_distance, shared_memory->zone3_recv.temperature,\
                       shared_memory->zone3_recv.humidity, shared_memory->zone3_recv.pressure,\
                        shared_memory->zone3_recv.door_status, shared_memory->zone3_recv.window_status);
@@ -59,7 +60,7 @@ void* handle_client1_3_recv(void* arg) {
         printf("  Heart Rate: %.2f\n", shared_memory->zone1_recv.humidity);
         printf("  Sleep Score: %f\n", shared_memory->zone1_recv.pressure);
         */
-       // print_sharedmemory();
+        print_sharedmemory();
         sleep(1);
     }
 
@@ -91,11 +92,36 @@ void* handle_client2_recv(void* arg) {
 
         // 공유 메모리에 Zone2 수신 데이터 업데이트
         pthread_mutex_lock(&shared_memory->mutex); // 공유 메모리 접근 동기화
+
         shared_memory->zone2_recv = buffer; // 구조체를 통째로 복사
+        if(buffer.sleep_score > 255){
+            shared_memory->zone3_send.sleep_alert = 1;
+            shared_memory->zone1_send.sleep_alert = 1;
+        }
+        else{
+            shared_memory->zone3_send.sleep_alert = 0;
+            shared_memory->zone1_send.sleep_alert = 0;
+        }
+
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
 
-        print_sharedmemory();
+        //print_sharedmemory();
 
+        //////////////////////////////////
+        /*
+        if(1){
+        //if(buffer.sleep_score > 255 && buffer.sleep_score < 512){
+            fan_set_speed(2); 
+        }
+        else if(buffer.sleep_score > 512){
+            fan_set_speed(3); 
+        }
+        else{
+            fan_set_speed(0);
+        }
+        */
+
+        //////////////////////////////////
         sleep(1);
 /*
         // 수신 데이터 출력
@@ -141,11 +167,14 @@ void* handle_client1_3_send(void* arg) {
     while (1) {
         // 클라이언트 연결 상태 확인
         // 클라이언트 IP에 따라 다른 메시지를 전송
-        pthread_mutex_lock(&shared_memory->mutex); 
+
+        pthread_mutex_lock(&shared_memory->mutex);
         if (strcmp(client_ip, "192.168.137.3") == 0) {
             buffer = shared_memory->zone3_send;
+            shared_memory->zone3_send.window_command = !buffer.window_command ;
         } else {
             buffer = shared_memory->zone1_send;
+            shared_memory->zone1_send.window_command = !buffer.window_command ;
         }
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
 

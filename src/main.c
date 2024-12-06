@@ -26,6 +26,7 @@ int main() {
     pthread_t tid;
 
     init_shared_memory();
+    fan_init();
     printf("%ld\n", sizeof(SharedMemory));
 
     // 서버 소켓 생성

@@ -15,7 +15,7 @@ struct Zone1_3_Data_recv {
     float ultrasonic_distance;  // 초음파 거리
     float temperature;          // 온도
     float humidity;             // 습도
-    float pressure;             // 압력 센서  
+    int pressure;             // 압력 센서  
     int door_status;        //  문 상태 
     int window_status;          // LED GPIO 상태
 };
@@ -29,6 +29,7 @@ struct Zone2_Data_recv{
 
 struct Zone1_3_Data_send{
     int window_command; // 창문 여닫기 여부
+    int sleep_alert;
 };
 
 
