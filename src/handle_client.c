@@ -97,10 +97,16 @@ void* handle_client2_recv(void* arg) {
         if(buffer.sleep_score > 255){
             shared_memory->zone3_send.sleep_alert = 1;
             shared_memory->zone1_send.sleep_alert = 1;
+	    shared_memory->zone1_send.window_command = 1;
+	    shared_memory->zone3_send.window_command = 1;
+
         }
         else{
             shared_memory->zone3_send.sleep_alert = 0;
             shared_memory->zone1_send.sleep_alert = 0;
+	    shared_memory->zone1_send.window_command = 0;
+            shared_memory->zone3_send.window_command = 0;
+
         }
 
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
@@ -109,10 +115,10 @@ void* handle_client2_recv(void* arg) {
 
         //////////////////////////////////
     
-        if(buffer.sleep_score > 255 && buffer.sleep_score < 512){
+        if(buffer.sleep_score > 128 && buffer.sleep_score < 255){
             fan_set_speed(2); 
         }
-        else if(buffer.sleep_score > 512){
+        else if(buffer.sleep_score > 255){
             fan_set_speed(3); 
         }
         else{
@@ -167,12 +173,10 @@ void* handle_client1_3_send(void* arg) {
         // 클라이언트 IP에 따라 다른 메시지를 전송
 
         pthread_mutex_lock(&shared_memory->mutex);
-        if (strcmp(client_ip, "192.168.137.3") == 0) {
-            buffer = shared_memory->zone3_send;
-            shared_memory->zone3_send.window_command = !buffer.window_command ;
-        } else {
+	if (strcmp(client_ip, "192.168.137.3") == 0) {
             buffer = shared_memory->zone1_send;
-            shared_memory->zone1_send.window_command = !buffer.window_command ;
+        } else {
+            buffer = shared_memory->zone3_send;
         }
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
 
@@ -181,7 +185,7 @@ void* handle_client1_3_send(void* arg) {
             break;
         }
 
-        printf("Sent to client [%s] : %d\n", client_ip, buffer.window_command);
+       // printf("Sent to client [%s] : %d\n", client_ip, buffer.window_command);
 
         // 주기적 대기 (예: 1초)
         sleep(1);
