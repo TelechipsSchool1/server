@@ -108,10 +108,15 @@ void* handle_client2_recv(void* arg) {
         }
 
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
+   
+        print_sharedmemory();
+
+        //////////////////////////////////
+    
         if(buffer.sleep_score > 128 && buffer.sleep_score < 255){
-            fan_set_speed(3);
+            fan_set_speed(3); 
         }
-        else if(buffer.sleep_score > 512){
+        else if(buffer.sleep_score > 255){
             fan_set_speed(3); 
         }
         else{
@@ -166,11 +171,11 @@ void* handle_client1_3_send(void* arg) {
         // 클라이언트 IP에 따라 다른 메시지를 전송
 
         pthread_mutex_lock(&shared_memory->mutex);
+
         if (strcmp(client_ip, "192.168.137.2") == 0) {
             buffer = shared_memory->zone1_send;
         } else {
             buffer = shared_memory->zone3_send;
-            shared_memory->zone1_send.window_command = !buffer.window_command ;
         }
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
 
@@ -179,7 +184,7 @@ void* handle_client1_3_send(void* arg) {
             break;
         }
 
-        printf("Sent to client [%s] : %d\n", client_ip, buffer.window_command);
+       // printf("Sent to client [%s] : %d\n", client_ip, buffer.window_command);
 
         // 주기적 대기 (예: 1초)
         sleep(1);
