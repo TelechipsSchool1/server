@@ -97,20 +97,19 @@ void* handle_client2_recv(void* arg) {
         if(buffer.sleep_score > 255){
             shared_memory->zone3_send.sleep_alert = 1;
             shared_memory->zone1_send.sleep_alert = 1;
+            shared_memory->zone3_send.window_command = 1;
+            shared_memory->zone1_send.window_command = 1;
         }
         else{
             shared_memory->zone3_send.sleep_alert = 0;
             shared_memory->zone1_send.sleep_alert = 0;
+            shared_memory->zone3_send.window_command = 0;
+            shared_memory->zone1_send.window_command = 0;
         }
 
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
-
-        print_sharedmemory();
-
-        //////////////////////////////////
-    
-        if(buffer.sleep_score > 255 && buffer.sleep_score < 512){
-            fan_set_speed(2); 
+        if(buffer.sleep_score > 128 && buffer.sleep_score < 255){
+            fan_set_speed(3);
         }
         else if(buffer.sleep_score > 512){
             fan_set_speed(3); 
@@ -167,11 +166,10 @@ void* handle_client1_3_send(void* arg) {
         // 클라이언트 IP에 따라 다른 메시지를 전송
 
         pthread_mutex_lock(&shared_memory->mutex);
-        if (strcmp(client_ip, "192.168.137.3") == 0) {
-            buffer = shared_memory->zone3_send;
-            shared_memory->zone3_send.window_command = !buffer.window_command ;
-        } else {
+        if (strcmp(client_ip, "192.168.137.2") == 0) {
             buffer = shared_memory->zone1_send;
+        } else {
+            buffer = shared_memory->zone3_send;
             shared_memory->zone1_send.window_command = !buffer.window_command ;
         }
         pthread_mutex_unlock(&shared_memory->mutex); // 공유 메모리 접근 해제
